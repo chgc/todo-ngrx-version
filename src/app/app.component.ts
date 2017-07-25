@@ -1,6 +1,7 @@
 import 'rxjs/add/operator/filter';
 
-import {Component} from '@angular/core';
+import {} from '@angular/common';
+import {Component, ElementRef, ViewChild} from '@angular/core';
 import {ActionsSubject, Store} from '@ngrx/store';
 import {Observable} from 'rxjs/Observable';
 
@@ -19,19 +20,22 @@ import {
 export class AppComponent {
   title = 'app';
   status = '';
+  @ViewChild('newTodo') newTodo: ElementRef;
   todos: Observable<Todo[]>;
   constructor(private store: Store<any>, private dispatcher: ActionsSubject) {
     this.todos = this.store.select('todos');
     // 測試用: 過濾特定的 action，類似 effects 的行為
-    this.dispatcher.filter((action: any) => action.type === ADD_TODO)
-        .subscribe(x => console.log(x));
+    this.dispatcher.filter((action: any) => action.type === ADD_TODO).subscribe(x => {
+      if (this.newTodo) {
+        this.newTodo.nativeElement.value = '';
+        this.newTodo.nativeElement.focus();
+      }
+    });
   }
 
   add(input) {
     if (input.value) {
       this.store.dispatch(new AddTodo(input.value));
-      input.value = '';
-      input.focus();
     }
   }
 
